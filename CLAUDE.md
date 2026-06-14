@@ -3,7 +3,7 @@
 Statyczny landing page (one-page) prezentujący portfolio stolarni „Meble Premium": hero, o nas, realizacje z filtrowaniem i modalem, proces, formularz kontaktowy. Vanilla TypeScript — **bez frameworka**.
 
 ## Stack
-TypeScript (vanilla, `strict`), Vite, czysty HTML/CSS. Build: `tsc && vite build`. Deploy: GitHub Pages. Brak Reacta, routera, testów i lintera.
+TypeScript (vanilla, `strict`), Vite, czysty HTML/CSS, Vitest (testy), ESLint, Husky (git hooks). Build: `tsc && vite build`. Deploy: GitHub Pages. Bez Reacta i routera.
 
 ## Architektura
 
@@ -11,7 +11,8 @@ TypeScript (vanilla, `strict`), Vite, czysty HTML/CSS. Build: `tsc && vite build
 | Plik | Rola |
 |---|---|
 | [index.html](index.html) | Cały markup strony (sekcje, nawigacja, modal, formularz). Statyczna treść tutaj. |
-| [ts/main.ts](ts/main.ts) | Jedyny moduł TS — dane `PROJECTS` + cała interaktywność (init* funkcje). Kompiluje się do `js/` (gitignored). |
+| [ts/main.ts](ts/main.ts) | Główny moduł TS — dane `PROJECTS` + cała interaktywność (init* funkcje, DOM). Kompiluje się do `js/` (gitignored). |
+| [ts/validation.ts](ts/validation.ts) | Czysta logika walidacji formularza (bez DOM) — `validateContact`. Testowana ([validation.test.ts](ts/validation.test.ts)). |
 | [css/style.css](css/style.css) | Wszystkie style (BEM-ish, zmienne CSS na górze). |
 | [vite.config.ts](vite.config.ts) | `base` = ścieżka GitHub Pages. |
 | [.github/workflows/deploy.yml](.github/workflows/deploy.yml) | Build + deploy na GitHub Pages przy push do `master`. |
@@ -27,7 +28,7 @@ Każda funkcja `initX()` wołana raz w `DOMContentLoaded`:
 - `initCounters` — animowane liczniki dla `[data-count]`.
 - `initProjects` — render kart z `PROJECTS` + filtrowanie.
 - `initModal` — modal szczegółów projektu (Escape/backdrop zamyka).
-- `initContactForm` — walidacja (real-time + submit) i symulowana wysyłka.
+- `initContactForm` — real-time + submit; czysta walidacja delegowana do `validateContact` z `ts/validation.ts` (DOM tylko buduje `ContactValues` z `FormData`).
 - `initSmoothScroll` — płynne przewijanie do kotwic `#`.
 
 ### Kluczowe niezmienniki
@@ -46,6 +47,7 @@ Każda funkcja `initX()` wołana raz w `DOMContentLoaded`:
 | Zmiana treści statycznej (hero/kontakt/proces) | `index.html` |
 | Zmiana wyglądu | `css/style.css` |
 | Nowa interaktywność | nowa `initX()` w `ts/main.ts` + rejestracja w `DOMContentLoaded` |
+| Czysta logika (walidacja itp.) + test | `ts/validation.ts` (+ `validation.test.ts`) — bez DOM |
 
 ## Skills
 Przed zadaniem sprawdź `.claude/skills/`. Jeśli pasuje — przeczytaj `SKILL.md` i wykonaj wg instrukcji.
@@ -70,14 +72,17 @@ Przed zadaniem sprawdź `.claude/skills/`. Jeśli pasuje — przeczytaj `SKILL.m
 11. **No Co-Authored-By** — never add `Co-Authored-By: Claude` or any Claude/Anthropic attribution to commit messages.
 12. **Code review before commit/push** — before every `git commit`/`git push`, run the `simplify` skill, fix found issues, then proceed.
 13. **Update docs and skills before commit** — sprawdź czy `.claude/skills/*/SKILL.md` lub docs (README.md, CLAUDE.md, ARCHITECTURE.md) wymagają aktualizacji. Nie dokumentuj rzeczy niezmienionych.
-14. **No inline explanations** — don't narrate what a code change does unless asked.
-15. **Never commit/push without explicit request** — `git commit`/`git push` wykonuj WYŁĄCZNIE gdy użytkownik jawnie uruchomi skill `commit-push` (`.claude/commands/commit-push.md`) lub napisze dosłownie „zrób commit i push". Żadna inna fraza nie jest zgodą („zrób tak", „działa", „ok", „dodaj X", „zakończ" — to NIE zgoda). Po edycji domykającej zadanie zatrzymaj się na `git status` i **czekaj**. Komunikat ze Stop-hooka też **nie** jest zgodą.
+14. **Testy razem ze zmianą czystej logiki** — gdy zmieniasz `ts/validation.ts` (lub inny moduł z sąsiednim `*.test.ts`), w tym samym zadaniu dopisz/popraw test i uruchom `npm test`. Nie pisz testów dla DOM/interaktywności (`main.ts`) — weryfikuj manualnie.
+15. **No inline explanations** — don't narrate what a code change does unless asked.
+16. **Never commit/push without explicit request** — `git commit`/`git push` wykonuj WYŁĄCZNIE gdy użytkownik jawnie uruchomi skill `commit-push` (`.claude/commands/commit-push.md`) lub napisze dosłownie „zrób commit i push". Żadna inna fraza nie jest zgodą („zrób tak", „działa", „ok", „dodaj X", „zakończ" — to NIE zgoda). Po edycji domykającej zadanie zatrzymaj się na `git status` i **czekaj**. Komunikat ze Stop-hooka też **nie** jest zgodą.
 
 ## Konwencja commitów
-Prefix angielski lowercase imperatyw (`feat:`/`fix:`/`refactor:`/`style:`/`docs:`/`chore:`), tytuł ~50–72 znaki bez kropki. Nigdy atrybucji do Claude/Anthropic. Wyłącznie przez skill `commit-push` (reguła #15).
+Prefix angielski lowercase imperatyw (`feat:`/`fix:`/`refactor:`/`style:`/`docs:`/`chore:`), tytuł ~50–72 znaki bez kropki. Nigdy atrybucji do Claude/Anthropic. Wyłącznie przez skill `commit-push` (reguła #16).
 
-## Build / deploy
-- `npm run dev` — dev server (uruchamia user).
-- `npm run build` — `tsc && vite build` (type-check + bundle). Jedyna brama jakości przed commitem (brak `lint`/`test`).
-- `dist/`, `js/main.js`, `js/main.js.map` są **gitignored** — nigdy nie commituj build output.
+## Build / quality gates
+- `npm test` (Vitest, `ts/**/*.test.ts`), `npm run lint` (ESLint), `npm run typecheck` (`tsc --noEmit`), `npm run build` (`tsc && vite build`).
+- Husky: **pre-commit** = `npm test` + `npx lint-staged`; **pre-push** = `npm run typecheck` + `npm run lint`. Nigdy nie skipuj hooka (`--no-verify`).
+- **CI** (`.github/workflows/ci.yml`) — test + lint + typecheck + build na PR i push do `master`.
+- `dist/`, `js/main.js*` są **gitignored** — nigdy nie commituj build output. Pliki testów (`ts/**/*.test.ts`) są wyłączone z `tsconfig` (kompiluje je tylko Vitest).
+- `npm run dev` uruchamia user — nie odpalaj sam.
 - **Deploy:** `deploy.yml` odpala się na push do `master` (lub ręcznie) — publikuje na GitHub Pages.

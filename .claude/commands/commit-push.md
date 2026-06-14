@@ -18,8 +18,11 @@ Steps:
    - if a recurring new pattern emerges that no skill covers, create a new SKILL.md.
 
    Also review documentation (README.md, CLAUDE.md, ARCHITECTURE.md) — update affected sections. Do not add docs for things that haven't changed.
-8. Run `npm run build` (`tsc && vite build`) — this type-checks (`tsc`) and bundles. Fix any errors before proceeding. There are no `lint`/`test` scripts in this repo.
-9. Commit using a HEREDOC so formatting is correct. Never use `--no-verify`.
-10. Push to the current branch with `git push`. The GitHub Pages deploy workflow (`.github/workflows/deploy.yml`) triggers on push to `master` (or manual `workflow_dispatch`), so a push to `master` auto-deploys the live site.
+8. **Testy** — jeśli diff zmienia czystą logikę objętą testami (`ts/validation.ts` lub inny moduł z sąsiednim `*.test.ts`), zaktualizuj/rozszerz `*.test.ts`. Uruchom `npm test` (`vitest run`) — musi przejść (pre-commit hook też je odpala).
+9. Run `npm run lint` (ESLint). Fix any errors. (Pre-commit runs `lint-staged` on staged `.ts` with `--max-warnings=0`; pre-push runs full lint.)
+10. Run `npm run typecheck` (`tsc --noEmit`). Fix any errors. (Pre-push runs the same.)
+11. Run `npm run build` (`tsc && vite build`) to confirm it bundles.
+12. Commit using a HEREDOC so formatting is correct. Never use `--no-verify` — if a hook fails, fix the cause.
+13. Push to the current branch with `git push`. CI (`.github/workflows/ci.yml`) runs test + lint + typecheck + build; the deploy workflow (`.github/workflows/deploy.yml`) triggers on push to `master` and auto-deploys the live site.
 
 If $ARGUMENTS is provided, use it as the commit message instead of auto-generating one.

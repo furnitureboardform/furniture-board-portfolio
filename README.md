@@ -3,19 +3,25 @@
 Statyczny landing page (one-page) portfolio stolarni „Meble Premium" — hero, o nas, filtrowane realizacje z modalem, proces i formularz kontaktowy. Vanilla TypeScript + Vite, deploy na GitHub Pages.
 
 ## Stack
-TypeScript (`strict`, bez frameworka), Vite, czysty HTML/CSS. Bez routera, testów i lintera.
+TypeScript (`strict`, bez frameworka), Vite, czysty HTML/CSS, Vitest, ESLint, Husky. Bez routera.
 
 ## Uruchamianie
 ```bash
-npm install
+npm install      # instaluje zależności + inicjuje husky (prepare)
 npm run dev      # dev server (Vite)
 npm run build    # tsc && vite build → dist/
 npm run preview  # podgląd builda
+npm test         # Vitest — testy czystej logiki (ts/validation)
+npm run lint     # ESLint
+npm run typecheck # tsc --noEmit
 ```
+
+Husky uruchamia testy + lint-staged przed commitem i typecheck + lint przed pushem. CI (`.github/workflows/ci.yml`) odpala test + lint + typecheck + build.
 
 ## Struktura
 - [index.html](index.html) — markup wszystkich sekcji, nawigacja, modal, formularz.
 - [ts/main.ts](ts/main.ts) — dane `PROJECTS` + interaktywność (`init*` w `DOMContentLoaded`).
+- [ts/validation.ts](ts/validation.ts) — czysta walidacja formularza (testowana).
 - [css/style.css](css/style.css) — wszystkie style (BEM, zmienne CSS).
 - [vite.config.ts](vite.config.ts) — `base` dla GitHub Pages.
 - `js/`, `dist/` — build output (gitignored).

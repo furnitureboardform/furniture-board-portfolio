@@ -301,8 +301,7 @@ FakesAssemblies/
 .ntvs_analysis.dat
 node_modules/
 dist/
-js/main.js
-js/main.js.map
+js/
 
 # Visual Studio 6 build log
 *.plg

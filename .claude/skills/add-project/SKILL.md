@@ -44,9 +44,9 @@ Trzy miejsca, wszystkie muszą się zgadzać:
 - **`id` unikalne** — duplikat nie wywoła błędu TS, ale modal/animacja mogą zachować się niespójnie.
 - **`category` ⇄ `data-filter`** — literówka = karta nie znika/nie pojawia się przy filtrowaniu.
 - Treść po polsku (cała strona jest PL).
-- Build/weryfikacja: `npm run build` (`tsc && vite build`). Brak `lint`/`test`.
+- Weryfikacja: `npm test` + `npm run lint` + `npm run typecheck` + `npm run build` (pre-commit/pre-push i CI robią to automatycznie).
 
 ## Checklist
 - [ ] Nowy obiekt w `PROJECTS` z unikalnym `id`.
 - [ ] `category` pasuje do istniejącego `data-filter` (lub dodana nowa kategoria w 2 miejscach).
-- [ ] `npm run build` przechodzi.
+- [ ] `npm test` + `npm run lint` + `npm run build` przechodzą.

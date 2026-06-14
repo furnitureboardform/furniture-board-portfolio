@@ -2,6 +2,8 @@
 // MEBLE PREMIUM — MAIN TYPESCRIPT
 // =========================================
 
+import { validateContact, type ContactValues, type FormErrors } from "./validation";
+
 // ---- Types ----
 
 interface ProjectDetail {
@@ -438,45 +440,19 @@ function initModal(): void {
 
 // ---- Contact Form ----
 
-interface FormErrors {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  projectType?: string;
-  message?: string;
-  consent?: string;
+function formDataToContact(data: FormData): ContactValues {
+  return {
+    firstName: (data.get("firstName") as string) ?? "",
+    lastName: (data.get("lastName") as string) ?? "",
+    email: (data.get("email") as string) ?? "",
+    projectType: (data.get("projectType") as string) ?? "",
+    message: (data.get("message") as string) ?? "",
+    consent: !!data.get("consent"),
+  };
 }
 
 function validateForm(data: FormData): FormErrors {
-  const errors: FormErrors = {};
-
-  const firstName = (data.get("firstName") as string).trim();
-  const lastName = (data.get("lastName") as string).trim();
-  const email = (data.get("email") as string).trim();
-  const projectType = (data.get("projectType") as string).trim();
-  const message = (data.get("message") as string).trim();
-  const consent = data.get("consent");
-
-  if (!firstName) errors.firstName = "Imię jest wymagane.";
-  if (!lastName) errors.lastName = "Nazwisko jest wymagane.";
-
-  if (!email) {
-    errors.email = "Email jest wymagany.";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errors.email = "Podaj poprawny adres email.";
-  }
-
-  if (!projectType) errors.projectType = "Wybierz rodzaj projektu.";
-
-  if (!message) {
-    errors.message = "Wiadomość jest wymagana.";
-  } else if (message.length < 20) {
-    errors.message = "Wiadomość powinna mieć co najmniej 20 znaków.";
-  }
-
-  if (!consent) errors.consent = "Zgoda jest wymagana.";
-
-  return errors;
+  return validateContact(formDataToContact(data));
 }
 
 function setFieldError(id: string, message: string): void {

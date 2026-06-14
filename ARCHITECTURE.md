@@ -17,11 +17,12 @@ Statyczny one-page bez frameworka. Jeden dokument `index.html`, jeden moduł `ts
         │  section[id]    ◀────initNav/observer (active link)────┤
         │  .reveal-*      ◀────initReveal (in-view)──────────────┤
         │  [data-count]   ◀────initCounters─────────────────────┤
-        │  #contactForm   ◀────initContactForm (walidacja)───────┘
+        │  #contactForm   ◀────initContactForm ──▶ validateContact (ts/validation.ts, czyste, testowane)
         │
         └─ css/style.css  (BEM, zmienne CSS)
 
    build:  tsc && vite build  →  dist/  →  GitHub Pages (deploy.yml @ push master)
+   gates:  vitest · eslint · tsc --noEmit  (husky pre-commit/pre-push + ci.yml)
 ```
 
 ## Punkty rozszerzeń
@@ -32,6 +33,7 @@ Statyczny one-page bez frameworka. Jeden dokument `index.html`, jeden moduł `ts
 | Nowa kategoria filtra | unia `Project.category` + `data-filter` w `index.html` | `add-project` |
 | Nowa sekcja + link menu | `<section id>` w `index.html` + styl + ewent. `initX()` | `add-section` |
 | Nowa interaktywność | funkcja `initX()` + rejestracja w `DOMContentLoaded` | — |
+| Czysta logika (walidacja itp.) + test | `ts/validation.ts` (+ `validation.test.ts`), bez DOM | — |
 | Treść statyczna | `index.html` | — |
 | Wygląd | `css/style.css` | — |
 
@@ -43,3 +45,4 @@ Statyczny one-page bez frameworka. Jeden dokument `index.html`, jeden moduł `ts
 - Brak zdjęć — placeholdery to kolory (`Project.color`).
 - Build output (`dist/`, `js/main.js*`) gitignored — nie commituj.
 - Deploy z gałęzi `master` (push auto-deployuje na GitHub Pages).
+- Czysta logika do testów idzie do `ts/validation.ts` (bez DOM) — `main.ts` jest pełen `document`/`window`, więc nie da się go zaimportować w teście node. Pliki `ts/**/*.test.ts` są wyłączone z `tsconfig` (kompiluje je tylko Vitest), żeby nie trafiały do `js/`.
