@@ -70,7 +70,7 @@ Przed zadaniem sprawdź `.claude/skills/`. Jeśli pasuje — przeczytaj `SKILL.m
 9. **Skip confirmations for local reversible edits** — just do it.
 10. **Polish language** — respond in Polish; treść strony też po polsku.
 11. **No Co-Authored-By** — never add `Co-Authored-By: Claude` or any Claude/Anthropic attribution to commit messages.
-12. **Code review before commit/push** — before every `git commit`/`git push`, run the `simplify` skill, fix found issues, then proceed.
+12. **Code review before commit/push — tylko przy zmianach logiki** — przed `git commit`/`git push` uruchom skill `simplify` (przegląd zmienionego kodu + napraw znalezione problemy) **tylko gdy** diff zmienia logikę w `ts/**` (`main.ts`, `validation.ts`). **Pomiń simplify** gdy commit obejmuje wyłącznie: docs/Markdown, `CLAUDE.md`, `.claude/skills/**` lub `.claude/commands/**`, `index.html`/CSS bez logiki, dane (np. tablica `PROJECTS`), pliki konfiguracyjne, albo zmianę trywialną/jedno-linijkową.
 13. **Update docs and skills before commit** — sprawdź czy `.claude/skills/*/SKILL.md` lub docs (README.md, CLAUDE.md, ARCHITECTURE.md) wymagają aktualizacji. Nie dokumentuj rzeczy niezmienionych.
 14. **Testy razem ze zmianą czystej logiki** — gdy zmieniasz `ts/validation.ts` (lub inny moduł z sąsiednim `*.test.ts`), w tym samym zadaniu dopisz/popraw test i uruchom `npm test`. Nie pisz testów dla DOM/interaktywności (`main.ts`) — weryfikuj manualnie.
 15. **No inline explanations** — don't narrate what a code change does unless asked.
