@@ -10,6 +10,7 @@
     "test": "vitest run",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "review-tier": "node scripts/review-tier.mjs",
     "prepare": "husky"
   },
   "lint-staged": {

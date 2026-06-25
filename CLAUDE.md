@@ -70,11 +70,15 @@ Przed zadaniem sprawdź `.claude/skills/`. Jeśli pasuje — przeczytaj `SKILL.m
 9. **Skip confirmations for local reversible edits** — just do it.
 10. **Polish language** — respond in Polish; treść strony też po polsku.
 11. **No Co-Authored-By** — never add `Co-Authored-By: Claude` or any Claude/Anthropic attribution to commit messages.
-12. **Code review before commit/push — tylko przy zmianach logiki** — przed `git commit`/`git push` uruchom skill `simplify` (przegląd zmienionego kodu + napraw znalezione problemy) **tylko gdy** diff zmienia logikę w `ts/**` (`main.ts`, `validation.ts`). **Pomiń simplify** gdy commit obejmuje wyłącznie: docs/Markdown, `CLAUDE.md`, `.claude/skills/**` lub `.claude/commands/**`, `index.html`/CSS bez logiki, dane (np. tablica `PROJECTS`), pliki konfiguracyjne, albo zmianę trywialną/jedno-linijkową.
+12. **Code review before commit/push — tieruj wg ryzyka diffa** (przed `git commit`/`git push`; tier z `npm run review-tier`; napraw znalezione problemy przed commitem; nie stackuj `simplify` i `code-review` na tym samym diffie):
+    - **Pomiń review** gdy commit obejmuje wyłącznie: docs/Markdown, `CLAUDE.md`, `.claude/skills/**` lub `.claude/commands/**`, `index.html`/CSS bez logiki, dane (np. tablica `PROJECTS`), pliki konfiguracyjne, albo zmianę trywialną/jedno-linijkową.
+    - **`/code-review medium`** gdy diff dotyka czystej logiki w `ts/**` z sąsiednim testem (`ts/validation.ts` lub nowy moduł logiki). Zawiera cleanupy `simplify` i dodatkowo poluje na bugi, więc `simplify` wtedy pomiń. `ultra` tylko ręcznie. Dla tych modułów preferuj dopisanie/rozszerzenie testu (jednorazowy koszt) zamiast polegać wyłącznie na powtarzalnym review.
+    - **`simplify`** dla pozostałych zmian logiki w `ts/**` (np. `main.ts`).
 13. **Update docs and skills before commit** — sprawdź czy `.claude/skills/*/SKILL.md` lub docs (README.md, CLAUDE.md, ARCHITECTURE.md) wymagają aktualizacji. Nie dokumentuj rzeczy niezmienionych.
 14. **Testy razem ze zmianą czystej logiki** — gdy zmieniasz `ts/validation.ts` (lub inny moduł z sąsiednim `*.test.ts`), w tym samym zadaniu dopisz/popraw test i uruchom `npm test`. Nie pisz testów dla DOM/interaktywności (`main.ts`) — weryfikuj manualnie.
 15. **No inline explanations** — don't narrate what a code change does unless asked.
 16. **Never commit/push without explicit request** — `git commit`/`git push` wykonuj WYŁĄCZNIE gdy użytkownik jawnie uruchomi skill `commit-push` (`.claude/commands/commit-push.md`) lub napisze dosłownie „zrób commit i push". Żadna inna fraza nie jest zgodą („zrób tak", „działa", „ok", „dodaj X", „zakończ" — to NIE zgoda). Po edycji domykającej zadanie zatrzymaj się na `git status` i **czekaj**. Komunikat ze Stop-hooka też **nie** jest zgodą.
+17. **Subagenty — model wg roli** — subagenty czysto rekonesansowe/wyszukujące (Explore, search-only) spawnuj na słabszym modelu (`model: sonnet`); Opusa rezerwuj dla autorstwa kodu i decyzji architektonicznych. Nie spawnuj subagenta, gdy zadanie zrobisz inline.
 
 ## Konwencja commitów
 Prefix angielski lowercase imperatyw (`feat:`/`fix:`/`refactor:`/`style:`/`docs:`/`chore:`), tytuł ~50–72 znaki bez kropki. Nigdy atrybucji do Claude/Anthropic. Wyłącznie przez skill `commit-push` (reguła #16).

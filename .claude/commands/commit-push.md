@@ -1,8 +1,12 @@
-Run the simplify skill first to review changed code, fix any issues found, then commit and push.
+Determine the review tier for the diff, run the matching review (skip / simplify / code-review), fix any issues found, then commit and push.
 
 Steps:
 1. Run `git status` and `git diff` to see what changed.
-2. Run the `simplify` skill on the changed files — review for code quality, reuse, and efficiency. Fix any issues found before proceeding.
+2. **Determine the review tier** — run `npm run review-tier` (deterministic path-based classification of the pending diff; mirrors CLAUDE.md rule #12). Apply the verdict on the cumulative diff (you may downgrade to `skip` if the change is genuinely trivial — a one-line constant/comment):
+   - `skip` → no review.
+   - `simplify` → run the `simplify` skill on the changed files; fix any issues.
+   - `code-review:medium` / `code-review:high` → run `/code-review <effort> --fix` on the changes **instead of** simplify (it includes simplify's cleanups and also hunts bugs); for high-risk core logic prefer adding/extending a test over relying on recurring review. Do not also run simplify.
+   Never stack simplify and code-review on the same diff; run the review once on the cumulative diff, not per file.
 3. Re-run `git diff` after fixes to confirm the final state of changes.
 4. Run `git log --oneline -5` to match the commit message style.
 5. Stage only relevant changed files. Never stage build output — `dist/`, `js/main.js` and `js/main.js.map` are gitignored.
