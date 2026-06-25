@@ -87,6 +87,7 @@ Prefix angielski lowercase imperatyw (`feat:`/`fix:`/`refactor:`/`style:`/`docs:
 - `npm test` (Vitest, `ts/**/*.test.ts`), `npm run lint` (ESLint), `npm run typecheck` (`tsc --noEmit`), `npm run build` (`tsc && vite build`).
 - Husky: **pre-commit** = `npm test` + `npx lint-staged`; **pre-push** = `npm run typecheck` + `npm run lint`. Nigdy nie skipuj hooka (`--no-verify`).
 - **CI** (`.github/workflows/ci.yml`) — test + lint + typecheck + build na PR i push do `master`.
+- **Pułapka: testy uruchamiaj z katalogu tego repo.** Odpalenie `npm --prefix <to-repo> test` z cwd **innego** repo w workspace (siostrzane `furniture-board-calculator-v2`/`furniture-board-dashboard`) sprawia, że test rozwiązuje `import 'vitest'` z cudzych `node_modules` → druga instancja vitest bez `__vitest_worker__` → mylący `TypeError: Cannot read properties of undefined (reading 'config')` przy `describe()`, „0 test". To **nie** realny błąd testów ani niezgodność vite/vitest — `cd` do repo i uruchom ponownie (husky i CI robią to poprawnie).
 - `dist/`, `js/main.js*` są **gitignored** — nigdy nie commituj build output. Pliki testów (`ts/**/*.test.ts`) są wyłączone z `tsconfig` (kompiluje je tylko Vitest).
 - `npm run dev` uruchamia user — nie odpalaj sam.
 - **Deploy:** `deploy.yml` odpala się na push do `master` (lub ręcznie) — publikuje na GitHub Pages.
